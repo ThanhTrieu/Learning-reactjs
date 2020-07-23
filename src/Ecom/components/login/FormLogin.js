@@ -1,31 +1,32 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import { 
   Form,
   Icon,
   Input,
   Button,
-  Checkbox,
   Row,
   Col,
   Layout
 } from 'antd';
 import './FormLogin.css';
 
+import { loginRequest } from '../../actions/index';
+
 class NormalLoginForm extends React.Component {
-  constructor(props) {
-    super(props);
-  }
 
   handleSubmit = e => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        console.log('Received values of form: ', values);
+        //console.log('Received values of form: ', values.password);
+        this.props.submitLogin(values.username, values.password);
       }
     });
   };
 
   render() {
+
     const { getFieldDecorator } = this.props.form;
     return (
       <Row>
@@ -54,17 +55,9 @@ class NormalLoginForm extends React.Component {
                 )}
               </Form.Item>
               <Form.Item>
-                {getFieldDecorator('remember', {
-                  valuePropName: 'checked',
-                  initialValue: true,
-                })(<Checkbox>Remember me</Checkbox>)}
-                <a className="login-form-forgot" href="">
-                  Forgot password
-                </a>
                 <Button type="primary" htmlType="submit" className="login-form-button">
                   Log in
                 </Button>
-                Or <a href="">register now!</a>
               </Form.Item>
             </Form>
           </Layout>
@@ -74,5 +67,17 @@ class NormalLoginForm extends React.Component {
   }
 }
 
-const WrappedNormalLoginForm = Form.create({ name: 'normal_login' })(NormalLoginForm);
+const mapStateToProps = state => ({
+  login: state.login,
+})
+
+const mapDispatchToProps = dispatch => ({
+  submitLogin: (email, password) => dispatch(loginRequest(email, password)) 
+})
+
+// make Redux state piece of `login` and our action `loginRequest`
+// available in this.props within our component
+const connected = connect(mapStateToProps, mapDispatchToProps)(NormalLoginForm)
+const WrappedNormalLoginForm = Form.create({ name: 'normal_login' })(connected);
+
 export default WrappedNormalLoginForm;

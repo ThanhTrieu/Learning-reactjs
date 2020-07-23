@@ -5,9 +5,6 @@ const { Content } = Layout;
 const { Meta } = Card;
 
 export default class WomanFashion extends React.PureComponent {
-  constructor(props) {
-    super(props);
-  }
 
   render() {
     return(

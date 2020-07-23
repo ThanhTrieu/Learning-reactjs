@@ -1,20 +1,29 @@
-import React from 'react';
-import { Layout} from 'antd';
+import { connect } from 'react-redux';
+import { createStructuredSelector } from 'reselect';
+import { 
+  listDataProductsSelector,
+  isLoadingDataSelector,
+  totalItemProducts,
+  pageSizeProducts
+} from '../reselect/ProductReselect';
+import { isLoadingAddCart } from '../reselect/CartReselect';
+import HomePage from '../components/home';
+import { getlistPagingProduct, addProductToCart } from '../actions/index';
 
-import ManFashion from '../components/home/ManFashion';
-import WomanFashion from '../components/home/WomanFashion';
+const mapStateToProps = createStructuredSelector({
+  listManFashion: listDataProductsSelector,
+  loadingProduct: isLoadingDataSelector,
+  loadingAddCart: isLoadingAddCart,
+  totalItems: totalItemProducts,
+  pageSize: pageSizeProducts
+});
 
-export default class HomePage extends React.Component {
-  constructor(props) {
-    super(props);
-  }
+const mapDispatchToProps = (dispatch) => ({
+  loadData: (start, limit) => dispatch(getlistPagingProduct(start, limit)),
+  addCart: (id) => dispatch(addProductToCart(id))
+});
 
-  render() {
-    return(
-      <Layout style={{ padding: '0 24px 24px' }}>
-        <ManFashion />
-        <WomanFashion />
-      </Layout>
-    )
-  }
-}
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(HomePage)

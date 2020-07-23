@@ -18,11 +18,18 @@ class Hello extends React.Component {
     log("Constructor from Child");
   }
   static getDerivedStateFromProps(nextProps, prevState) {
+    // ban chat la can thay doi state bang prpops truoc khi render view.
+    // han che dung
     log("getDerivedStateFromProps from Child");
     log(nextProps);
     log(prevState);
-    log("getDerivedStateFromProps from Child --- the second");
-    return null;
+    //log(this.props);
+    //log("getDerivedStateFromProps from Child --- the second");
+    //return null; //{count: nextProps.count};
+    if(nextProps.count !== prevState.count){
+      return { count: nextProps.count};
+    }
+    else return null;
   }
 
   componentDidMount() {
@@ -50,7 +57,7 @@ class Hello extends React.Component {
     log("render from Child");
     return (
       <div style={styles.childBorder}>
-        <h4>Child Component</h4>
+        <h4>Child Component - {this.state.count}</h4>
         <div>
           <button onClick={this.updateCount}>Update Child Component</button>
         </div>

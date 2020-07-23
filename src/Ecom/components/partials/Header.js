@@ -1,10 +1,15 @@
 import React from 'react';
-import { Menu, Icon, Row, Col, Carousel, Input} from 'antd';
-
+import { withTranslation } from 'react-i18next';
+import i18n from 'i18next';
+import { Menu, Icon, Row, Col, Input,Button} from 'antd';
 import { NavLink } from "react-router-dom";
+import jwt from 'jsonwebtoken';
+import { connect } from 'react-redux';
+import { logoutRequest } from '../../actions';
+import LanguageSelector from './ChangeLanguae';
 
 const { SubMenu } = Menu;
-
+const { Search } = Input;
 const sizeLogo = {
   height: '16px'
 }
@@ -12,19 +17,47 @@ const divLogo = {
   padding: "12px 30px"
 }
 
-class Header extends React.PureComponent {
-  state = {
-    current: 'mail',
-  };
 
-  handleClick = e => {
-    console.log('click ', e);
-    this.setState({
-      current: e.key,
-    });
-  };
+const getLanguage = () => {
+  return i18n.language ||
+    (typeof window !== 'undefined' && window.localStorage.i18nextLng) ||
+    'en';
+};
+
+class Header extends React.PureComponent {  
+  constructor(props) {
+    super(props);
+    this.state = {id: '', email: ''}
+  }
+  componentDidMount() {
+    this.getTokenLogin();
+  }
+
+  getTokenLogin() {
+    const token =  JSON.parse(localStorage.getItem('token'));
+    if(token){
+      const decodeToken = jwt.verify(token, 'RJS1911E');
+      this.setState(() => ({
+        id: decodeToken.id,
+        email: decodeToken.email
+      }))
+    } else {
+      this.setState({
+        id: '',
+        email: ''
+      })
+    }
+  }
+
+  logout = () => {
+    this.props.submitLogout();
+    this.getTokenLogin();
+  }
   
+
   render() {
+    const { props, t } = this.props;
+    const currentLang = getLanguage();
     return (
       <>
         <Row>
@@ -36,28 +69,33 @@ class Header extends React.PureComponent {
                   <img style={sizeLogo} alt="Ant Design" src="https://gw.alipayobjects.com/zos/rmsportal/DkKNubTaaVsKURhcVGkh.svg" />
                 </Col>
                 <Col span={18}>
-                  <Input placeholder="Nhập từ khoá và nhấn phím enter" />
+                  <Search 
+                    placeholder="Nhập từ khoá ... " 
+                    onSearch={value => console.log(value)}
+                  />
                 </Col>
               </Row>
             </div>
           </Col>
           <Col span={12}>
-            <Menu onClick={this.handleClick} selectedKeys={[this.state.current]} mode="horizontal">
-              <Menu.Item key="mail">
-                <NavLink to="/" className="nav-text">
+            <Menu selectedKeys={[props.location.pathname]} mode="horizontal">
+              <Menu.Item key="/">
+                <NavLink to="/" className={`nav-text`}>
                   <Icon type="home" />
-                  Dashboard
+                  {t('header.home')}
                 </NavLink>
               </Menu.Item>
-              <Menu.Item key="cart">
-                <Icon type="shopping-cart" />
-                Giỏ hàng
+              <Menu.Item key="/cart">
+                <NavLink to="/cart" className={`nav-text`}>
+                  <Icon type="shopping-cart" />
+                  {t('header.cart')}
+                </NavLink>
               </Menu.Item>
               <SubMenu
                 title={
                   <span className="submenu-title-wrapper">
                     <Icon type="setting" />
-                    Chính sách và Tài khoản
+                    {t('header.policies')}
                   </span>
                 }
               >
@@ -70,26 +108,54 @@ class Header extends React.PureComponent {
                   <Menu.Item key="setting:4">Cài đặt tài khoản</Menu.Item>
                 </Menu.ItemGroup>
               </SubMenu>
-              <Menu.Item key="user">
-                <NavLink to="/login" className="nav-text">
-                  <Icon type="user" />
-                  Đăng nhập
-                </NavLink>
-              </Menu.Item>
+
+              {
+                (this.state.id && this.state.email) ? (
+                  <SubMenu
+                    title={
+                      <span className="submenu-title-wrapper">
+                        <Icon type="user" />
+                        {t('header.hi')}: {this.state.email}
+                      </span>
+                    }
+                  >
+                    <Menu.Item key="/logout">
+                      <Button onClick={this.logout}>
+                        <Icon type="logout" />
+                        {t('header.logout')}
+                      </Button>                       
+                    </Menu.Item>
+                  </SubMenu>
+                ) 
+                : (
+                  <Menu.Item key="/login">
+                    <NavLink to="/login" className="nav-text">
+                      <Icon type="user" />
+                      {t('header.login')}
+                    </NavLink>
+                  </Menu.Item>
+                )
+              }
+              {currentLang === 'en' ? (
+                <Menu.Item key="/vi">
+                  <LanguageSelector lang="vi" />
+                </Menu.Item>
+              ) : (
+                <Menu.Item key="/en">
+                  <LanguageSelector lang="en" />
+                </Menu.Item>
+              )}
             </Menu>
           </Col>
         </Row>
-        <Carousel autoplay >
-          <div>
-            <img src="https://www.viettien.com.vn/admin/wp-content/uploads/2017/06/BANNER-TRANG-CHU.jpg" alt="BST Fall Winter 2019 Arrival" />
-          </div>
-          <div>
-            <img src="https://www.viettien.com.vn/admin/wp-content/uploads/2017/06/BANNER-TRANG-CHU.jpg" alt="Owen Black Friday 2019"/>
-          </div>
-        </Carousel>
       </>
     );
   }
 }
 
-export default Header;
+const mapDispatchToProps = (dispatch) => ({
+  submitLogout: () => {dispatch(logoutRequest())} 
+})
+
+const connected = connect(null, mapDispatchToProps)(Header);
+export default withTranslation()(connected);

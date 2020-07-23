@@ -1,5 +1,3 @@
-// App.js
-
 import React, { Component } from 'react';
 import StockList from './StockList';
 import UserList from './UserList';

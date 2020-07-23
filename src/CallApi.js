@@ -30,12 +30,13 @@ class CallApi extends React.Component {
   */
 
   getDataV2 = async () => {
-    axios.get(`https://cors-anywhere.herokuapp.com/https://suddi.io/public/resume.json`,{
+    axios.get(`https://cors-anywhere.herokuapp.com/https://api.themoviedb.org/3/search/movie?query=badman&api_key=cfe422613b250f702980a3bbf9e90716`,{
       headers: {
         'Access-Control-Allow-Origin':'*',
         'Access-Control-Allow-Credentials': true,
         'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
       }
     })
     .then(res => {

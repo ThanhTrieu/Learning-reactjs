@@ -1,12 +1,20 @@
 import React from 'react';
-import { Layout, Breadcrumb, Icon, Row, Col , Card} from 'antd';
+import Img from 'react-image';
+import { Layout, Breadcrumb, Icon, Row, Col , Card, Button, message, Pagination } from 'antd';
 
 const { Content } = Layout;
 const { Meta } = Card;
 
-export default class ManFashion extends React.PureComponent {
-  constructor(props) {
-    super(props);
+class ManFashion extends React.PureComponent {
+  addProductToCart = (id) => {
+    this.props.addCart(id);
+    if(!this.props.loadingCart){
+      message.success('add success', 2);
+    }
+  }
+  goPageItems = (current, size) => {
+    //console.log(current, size);
+    this.props.loadData(current, size);
   }
 
   render() {
@@ -26,45 +34,37 @@ export default class ManFashion extends React.PureComponent {
           }}
         >
           <Row gutter={16}>
-            <Col span={6}>
-              <Card
-                hoverable
-                style={{ width: 240 }}
-                cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />}
-              >
-                <Meta title="Europe Street beat" description="www.instagram.com" />
-              </Card>
-            </Col>
-            <Col span={6}>
-              <Card
-                hoverable
-                style={{ width: 240 }}
-                cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />}
-              >
-                <Meta title="Europe Street beat" description="www.instagram.com" />
-              </Card>
-            </Col>
-            <Col span={6}>
-              <Card
-                hoverable
-                style={{ width: 240 }}
-                cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />}
-              >
-                <Meta title="Europe Street beat" description="www.instagram.com" />
-              </Card>
-            </Col>
-            <Col span={6}>
-              <Card
-                hoverable
-                style={{ width: 240 }}
-                cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />}
-              >
-                <Meta title="Europe Street beat" description="www.instagram.com" />
-              </Card>
-            </Col>
+            {this.props.lstData.map((item, i) => (
+              <Col span={6} key={item.id}>
+                <Card
+                  hoverable
+                  style={{ width: 240, marginTop: '20px' }}
+                  cover={<Img alt={item.title} src={item.img} />}
+                >
+                  <Meta title={item.title} />
+                  <p>{item.price}$</p>
+                  <Button 
+                    type="primary"
+                    loading={this.props.loadingCart}
+                    onClick={() => this.addProductToCart(item.id)}
+                  >
+                    <Icon type="shopping-cart" size="larg" />
+                    Cart
+                  </Button>
+                  <Button type="danger" style={{marginLeft: "10px"}}>
+                    <Icon type="pay-circle" />
+                    Buy
+                  </Button>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+          <Row type="flex" align="middle" style={{marginTop: '10px'}}>
+            <Pagination defaultCurrent={1} total={this.props.totalItems} pageSize={this.props.pageSize} showTitle={true} onChange={this.goPageItems} />
           </Row>
         </Content>
       </>
     )
   }
 }
+export default ManFashion;
